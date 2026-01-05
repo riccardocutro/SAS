@@ -1,10 +1,12 @@
 package catering.businesslogic;
 
 import catering.businesslogic.event.EventManager;
+import catering.businesslogic.holiday.HolidayManager;
 import catering.businesslogic.kitchen.KitchenTaskManager;
 import catering.businesslogic.menu.MenuManager;
 import catering.businesslogic.recipe.RecipeManager;
 import catering.businesslogic.shift.ShiftManager;
+import catering.businesslogic.staff.StaffManager;
 import catering.businesslogic.user.UserManager;
 import catering.persistence.KitchenTaskPersistence;
 import catering.persistence.MenuPersistence;
@@ -26,6 +28,9 @@ public class CatERing {
     private KitchenTaskManager kitchenTaskMgr;
     private ShiftManager shiftMgr;
 
+    private StaffManager staffMgr;
+    private HolidayManager holidayMgr;
+
     private MenuPersistence menuPersistence;
     private KitchenTaskPersistence kitchenTaskPersistence;
 
@@ -35,7 +40,10 @@ public class CatERing {
         userMgr = new UserManager();
         eventMgr = new EventManager();
         kitchenTaskMgr = new KitchenTaskManager();
-        shiftMgr = new ShiftManager(); // Add this line to initialize ShiftManager
+        shiftMgr = new ShiftManager();
+
+        staffMgr = new StaffManager();
+        holidayMgr = new HolidayManager();
 
         menuPersistence = new MenuPersistence();
         kitchenTaskPersistence = new KitchenTaskPersistence();
@@ -107,5 +115,9 @@ public class CatERing {
     public void setKitchenTaskManager(KitchenTaskManager kitchenTaskMgr) {
         this.kitchenTaskMgr = kitchenTaskMgr;
     }
+
+    public StaffManager getStaffManager() { return staffMgr; }
+
+    public HolidayManager getHolidayManager() { return holidayMgr; }
 
 }

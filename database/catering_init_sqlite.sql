@@ -45,7 +45,7 @@ CREATE TABLE
 CREATE TABLE
     `Roles` (
         `id` INTEGER NOT NULL,
-        `role` TEXT NOT NULL,
+        `role` TEXT NOT NULL,RoleRequests,
         PRIMARY KEY (`id`)
     );
 
@@ -945,7 +945,10 @@ INSERT OR IGNORE INTO Roles (id, role) VALUES
 (0,'CUOCO'),
 (1, 'CHEF'),
 (2, 'ORGANIZZATORE'),
-(3, 'SERVIZIO');
+(3, 'SERVIZIO'),
+(4, 'PROPRIETARIO');
+
+
 
 -- Now assign roles to users
 -- Staff (SERVIZIO)
@@ -973,7 +976,8 @@ INSERT INTO UserRoles (user_id, role_id) VALUES
 (5, 0),        -- Antonio is both chef and cook
 (7, 3),     -- Giovanni is both organizer and wait staff
 (4, 3),     -- Sofia is both cook and wait staff
-(6, 2); -- Chiara is both chef and organizer
+(6, 2), -- Chiara is both chef and organizer
+(7, 4);
 
 -- First create a menu
 INSERT INTO Menus (title, owner_id, published) 

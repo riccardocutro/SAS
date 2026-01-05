@@ -12,7 +12,7 @@ import java.util.Set;
 public class User {
 
     public static enum Role {
-        CUOCO, CHEF, ORGANIZZATORE, SERVIZIO
+        CUOCO, CHEF, ORGANIZZATORE, SERVIZIO, PROPRIETARIO
     };
 
     private int id;
@@ -36,6 +36,8 @@ public class User {
     public boolean isChef() {
         return roles.contains(Role.CHEF);
     }
+
+    public boolean isOwner(){return roles.contains(Role.PROPRIETARIO);}
 
     public String getUserName() {
         return username;
@@ -170,29 +172,25 @@ public class User {
     }
 
     // Helper method to load roles for a user
+    // User.java -> loadRolesForUser
+
     private static void loadRolesForUser(User u) {
         String roleQuery = "SELECT * FROM UserRoles WHERE user_id = ?";
 
         PersistenceManager.executeQuery(roleQuery, new ResultHandler() {
             @Override
             public void handle(ResultSet rs) throws SQLException {
-                int role = rs.getInt("role_id");
+                String role = rs.getString("role_id");
+
                 switch (role) {
-                    case 0:
-                        u.roles.add(User.Role.CUOCO);
-                        break;
-                    case 1:
-                        u.roles.add(User.Role.CHEF);
-                        break;
-                    case 2:
-                        u.roles.add(User.Role.ORGANIZZATORE);
-                        break;
-                    case 3:
-                        u.roles.add(User.Role.SERVIZIO);
-                        break;
+                    case "0": u.roles.add(User.Role.CUOCO); break;
+                    case "1": u.roles.add(User.Role.CHEF); break;
+                    case "2": u.roles.add(User.Role.ORGANIZZATORE); break;
+                    case "3": u.roles.add(User.Role.SERVIZIO); break;
+                    case "4": u.roles.add(User.Role.PROPRIETARIO); break;
                 }
             }
-        }, u.id); // Pass u.id as parameter
+        }, u.id);
     }
 
     /**
@@ -284,16 +282,12 @@ public class User {
      */
     private String getRoleStringId(Role role) {
         switch (role) {
-            case CUOCO:
-                return "c";
-            case CHEF:
-                return "h";
-            case ORGANIZZATORE:
-                return "o";
-            case SERVIZIO:
-                return "s";
-            default:
-                return "";
+            case CUOCO: return "0";
+            case CHEF: return "1";
+            case ORGANIZZATORE: return "2";
+            case SERVIZIO: return "3";
+            case PROPRIETARIO: return "4";
+            default: return "";
         }
     }
 
