@@ -26,14 +26,13 @@ public class StaffManager {
         this.eventReceivers.remove(rec);
     }
 
-    // --- 1. APERTURA SCHEDA ---
     public EventCard openEventSheet(Event e) throws UseCaseLogicException {
         User user = CatERing.getInstance().getUserManager().getCurrentUser();
         if (user == null || !user.hasRole(User.Role.ORGANIZZATORE)) {
             throw new UseCaseLogicException("User is not authorized");
         }
 
-        EventCard ec = EventCard.loadByEventId(e.getId()); // Corretto: loadByEventId
+        EventCard ec = EventCard.loadByEventId(e.getId());
         if (ec == null) {
             ec = new EventCard(e);
             EventCard.create(ec);
@@ -43,7 +42,6 @@ public class StaffManager {
         return ec;
     }
 
-    // --- 2. DEFINIZIONE RUOLO---
     public RoleRequest defineRole(String position) throws UseCaseLogicException {
         if (currentEventCard == null) throw new UseCaseLogicException("No event sheet open");
 
@@ -55,7 +53,6 @@ public class StaffManager {
         return rr;
     }
 
-    // --- 3. ASSEGNAZIONE RUOLO ---
     public void assignRole(RoleRequest role, Staff s) throws UseCaseLogicException {
         if (currentEventCard == null) throw new UseCaseLogicException();
 
@@ -75,12 +72,11 @@ public class StaffManager {
         }
 
         role.assign(s);
-        RoleRequest.saveAssignment(role); // Aggiorna DB
+        RoleRequest.saveAssignment(role);
 
         notifyRoleAssigned(role, s);
     }
 
-    // --- 4. CONTATTO OCCASIONALE ---
     public void contactTemporaryStaff(Staff s, Date deadline, RoleRequest role) throws UseCaseLogicException {
         if (currentEventCard == null) throw new UseCaseLogicException();
 
@@ -92,7 +88,6 @@ public class StaffManager {
         notifyCandidateContacted(role, s, rd);
     }
 
-    // --- 5. GESTIONE RISPOSTA ---
     public void saveResponse(Staff s, RoleRequest role, String outcome) throws UseCaseLogicException {
         if (currentEventCard == null) throw new UseCaseLogicException();
 
@@ -107,7 +102,6 @@ public class StaffManager {
         notifyResponseSaved(role, s, outcome);
     }
 
-    // --- 6. ALGORITMO DI RICERCA ---
     public ArrayList<Staff> getAvailableStaff(String category) throws UseCaseLogicException {
         if (currentEventCard == null) throw new UseCaseLogicException();
         Date date = currentEventCard.getStartDate();
@@ -127,7 +121,6 @@ public class StaffManager {
         return availableList;
     }
 
-    // --- 7. ANAGRAFICA ---
     public void saveNewStaff(String name, String surname, String contact) throws UseCaseLogicException {
         User user = CatERing.getInstance().getUserManager().getCurrentUser();
 
@@ -140,7 +133,6 @@ public class StaffManager {
         notifyStaffCreated(s);
     }
 
-    // --- NOTIFICHE (Observer Pattern) ---
 
     private void notifyRoleDefined(EventCard sch, RoleRequest r) {
         for (StaffEventReceiver er : eventReceivers) {

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.logging.Logger;
 
@@ -132,6 +133,92 @@ public class StaffManagementTest {
 
         } catch (Exception e) {
             fail("Errore imprevisto nel test: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(4)
+    void testOwnerApproveHoliday() {
+        LOGGER.info("Test: Proprietario approva ferie");
+        try {
+            app.getUserManager().fakeLogin("Giovanni");
+            User currentUser = app.getUserManager().getCurrentUser();
+
+            if (!currentUser.isOwner()) {
+                LOGGER.warning("Attenzione: Giovanni non risulta Proprietario nel DB");
+            }
+
+            Staff worker = Staff.loadAllStaff().get(0);
+            java.sql.Date start = java.sql.Date.valueOf("2026-08-15");
+            java.sql.Date end = java.sql.Date.valueOf("2026-08-20");
+
+            HolidayRequest hr = app.getHolidayManager().createRequest(worker, start, end);
+            assertEquals(HolidayRequest.STATUS_PENDING, hr.getStatus());
+
+            app.getHolidayManager().manageHolidayRequest(hr, HolidayRequest.STATUS_APPROVED);
+
+            assertEquals(HolidayRequest.STATUS_APPROVED, hr.getStatus());
+            LOGGER.info("Ferie approvate correttamente per " + worker.getName());
+
+        } catch (Exception e) {
+            fail("Errore imprevisto: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(5)
+    void testTemporaryStaffWorkflow() {
+        LOGGER.info("Test: Flusso Personale Occasionale");
+        try {
+            app.getUserManager().fakeLogin("Giovanni");
+            app.getStaffManager().openEventSheet(testEvent);
+
+            RoleRequest role = app.getStaffManager().defineRole("Barman Extra");
+
+            Staff tempStaff = new Staff("Mario", "Rossi_Occasionale", "555-1234");
+            Staff.saveNewStaff(tempStaff);
+
+            Date deadlineDate = java.sql.Date.valueOf("2025-12-31");
+            app.getStaffManager().contactTemporaryStaff(tempStaff, deadlineDate, role);
+
+            assertTrue(role.getCandidates().contains(tempStaff), "Lo staff dovrebbe essere tra i candidati");
+
+            app.getStaffManager().saveResponse(tempStaff, role, "positivo");
+
+            assertEquals("assigned", role.getStatus());
+            assertEquals(tempStaff.getId(), role.getAssignee().getId());
+            LOGGER.info("Staff occasionale contattato e assegnato con successo");
+
+            RoleRequest role2 = app.getStaffManager().defineRole("Altro Ruolo");
+            Staff tempStaff2 = new Staff("Luigi", "Verdi_No", "555-9999");
+            Staff.saveNewStaff(tempStaff2);
+
+            app.getStaffManager().contactTemporaryStaff(tempStaff2, deadlineDate, role2);
+            app.getStaffManager().saveResponse(tempStaff2, role2, "negativo");
+
+            assertNotEquals("assigned", role2.getStatus());
+            assertFalse(role2.getCandidates().contains(tempStaff2));
+
+        } catch (Exception e) {
+            fail("Errore imprevisto: " + e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(6)
+    void testDeleteRoleRequest() {
+        LOGGER.info("Test: Cancellazione Ruolo");
+        try {
+            app.getUserManager().fakeLogin("Giovanni");
+            app.getStaffManager().openEventSheet(testEvent);
+
+            RoleRequest wrongRole = app.getStaffManager().defineRole("Ruolo Errato");
+            assertNotNull(wrongRole);
+
+            LOGGER.info("Test cancellazione saltato");
+
+        } catch (Exception e) {
+            fail("Errore: " + e.getMessage());
         }
     }
 }

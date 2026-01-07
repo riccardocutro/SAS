@@ -34,7 +34,6 @@ public class Event {
         this.name = name;
     }
 
-    // Basic getters and setters
     public int getId() {
         return id;
     }
